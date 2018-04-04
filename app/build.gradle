@@ -27,6 +27,17 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.2.0'
     testCompile 'junit:junit:4.12'
 
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    //compile files('libs/retrofit-2.4.0.jar')
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile 'junit:junit:4.12'
+
+    // AppCompat Libs
+    compile 'com.android.support:design:+'
+
+    // Load Images
+    compile 'com.squareup.picasso:picasso:2.4.0'
+
+    // GSON with Retrofit
+    compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.squareup.retrofit2:retrofit:+'
+    compile 'com.squareup.retrofit2:converter-gson:+'
 }
