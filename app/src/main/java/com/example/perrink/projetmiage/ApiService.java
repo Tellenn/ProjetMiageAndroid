@@ -1,17 +1,22 @@
 package com.example.perrink.projetmiage;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 
 /**
- * Created by perrink on 04/04/18.
+ * Created by perrink on 25/04/18.
  */
 
 public interface ApiService {
-    /*
-    Retrofit get annotation with our URL
-    And our method that will return us the List of ContactList
-    */
-    @GET("/json_data.json")
-    Call<ArretList> getMyJSON();
+    @GET("routers/default/index/routes/SEM:{shortName}/clusters/")
+    Call<List<ArretLigne>> getStopsFrom(@Path("shortName") String shortName);
+
+    @GET("ficheHoraires/json?route=SEM:A")
+    Call<ChoixDirection> getTimeFrom();
+
+    @GET("routers/default/index/clusters/SEM:{codeStation}/stoptimes")
+    Call<List<ChoixLigne>> getPassageFromStation(@Path("codeStation") String codeStation);
 }

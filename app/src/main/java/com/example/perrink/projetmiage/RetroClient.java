@@ -4,14 +4,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
- * Created by perrink on 04/04/18.
+ * Created by perrink on 25/04/18.
  */
 
-public class ArretMetromobilite {
-    /******
-    * URLS
-    *******/
-    private static final String ROOT_URL = "data.metromobilite.fr";
+public class RetroClient {
+
+    private static final String ROOT_URL = "http://data.metromobilite.fr/api/";
 
     /**
      * Get Retrofit Instance

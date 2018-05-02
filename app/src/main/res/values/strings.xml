@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Projet Miage</string>
+    <string name="string_getting_json_title">Telechargement des données</string>
+    <string name="string_getting_json_message">Cela peut prendre quelque secondes selon votre connection</string>
+    <string name="string_getting_json_Error_noresponse">Oops !</string>
+    <string name="string_getting_json_error_noresponse_message">Nous n\'arrivons pas a contacter Metromobilite</string>
 </resources>

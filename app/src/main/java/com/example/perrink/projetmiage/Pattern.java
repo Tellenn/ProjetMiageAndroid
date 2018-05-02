@@ -1,13 +1,13 @@
 package com.example.perrink.projetmiage;
 
 /**
- * Created by perrink on 04/04/18.
+ * Created by perrink on 02/05/18.
  */
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ArretPattern {
+public class Pattern {
 
     @SerializedName("id")
     @Expose
