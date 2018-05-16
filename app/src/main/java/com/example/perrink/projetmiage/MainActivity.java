@@ -1,7 +1,11 @@
 package com.example.perrink.projetmiage;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -30,14 +34,17 @@ public class MainActivity extends AppCompatActivity {
      */
     private ListView listView;
     private View parentView;
-    public TextView debugMoi;
+    private ProgressDialog dialog;
+
+    private String ligne = "B"; //TODO A supprimer, doit être a nul et récupéré ensuite
+    private String station = "GENPLAINEDS";// TODO A supprimer, doit être a null et recupéré ensuite
+    private int time = -1; //TODO A SUPPRIMER -1 is null in our case
 
     private List<ArretLigne> listArretLigne;
     private ChoixDirection directions;
     private List<ChoixLigne> choixLigne;
-    //private ArretLigneAdapter adapter;
-    //private HorraireArretAdapter adapter;
     private ChoixLigneAdapter adapter;
+    private ApiService api = RetroClient.getApiService();
 
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -62,6 +69,12 @@ public class MainActivity extends AppCompatActivity {
          */
         listView = (ListView) findViewById(R.id.listView);
 
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                createNotification("Plop", "Ploup");
+            }
+        });
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         assert fab != null;
@@ -70,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(@NonNull final View view) {
 
                 if (isNetworkConnected()) {
-                    final ProgressDialog dialog;
                     /**
                      * Progress Dialog for User Interaction
                      */
@@ -80,29 +92,25 @@ public class MainActivity extends AppCompatActivity {
                     dialog.show();
 
                     //Creating an object of our api interface
-                    ApiService api = RetroClient.getApiService();
+
 
                     /**
                      * Calling JSON
                      */
-                    //Call<List<ArretLigne>> call = api.getStopsFrom("A");
-                    //Call<ChoixDirection> call = api.getTimeFrom();
-                    Call<List<ChoixLigne>> call = api.getPassageFromStation("GENPLAINEDS");
-                    Log.wtf("URL Called", call.request().url() + " ");
+                    Call<List<ArretLigne>> call2 = api.getStopsFrom("A");
+                    Log.wtf("URL Called", call2.request().url() + " ");
 
                     /**
                      * Enqueue Callback will be call when get response...
                      */
-                    /*call.enqueue(new Callback<List<ArretLigne>>() {
+                    call2.enqueue(new Callback<List<ArretLigne>>() {
                         @Override
                         public void onResponse(Call<List<ArretLigne>> call, Response<List<ArretLigne>> response) {
-                            //Dismiss Dialog
-                            dialog.dismiss();
+
                             if (response.isSuccessful()) {
 
                                 listArretLigne = response.body();
-                                adapter = new ArretLigneAdapter(MainActivity.this, listArretLigne);
-                                listView.setAdapter(adapter);
+                                demarrerAffichage();
 
                             } else {
                                 dialog.setTitle(getString(R.string.string_getting_json_Error_noresponse));
@@ -117,63 +125,89 @@ public class MainActivity extends AppCompatActivity {
                             Log.wtf("Error !", "Echec de la Callback");
                             dialog.dismiss();
                         }
-                    });*/
-                    /*
-                    call.enqueue(new Callback<ChoixDirection>() {
-                        @Override
-                        public void onResponse(Call<ChoixDirection> call, Response<ChoixDirection> response) {
-                            //Dismiss Dialog
-                            dialog.dismiss();
-                            if (response.isSuccessful()) {
-
-                                directions = response.body();
-                                adapter = new HorraireArretAdapter(MainActivity.this, directions.get0().getArrets());
-                                listView.setAdapter(adapter);
-
-                            } else {
-                                dialog.setTitle(getString(R.string.string_getting_json_Error_noresponse));
-                                dialog.setMessage(getString(R.string.string_getting_json_error_noresponse_message));
-                                dialog.show();
-                                //dialog.dismiss();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<ChoixDirection> call, Throwable t) {
-                            Log.wtf("Error !", t.getMessage().toString());
-                            dialog.dismiss();
-                        }
                     });
-*/
-                    call.enqueue(new Callback<List<ChoixLigne>>() {
-                        @Override
-                        public void onResponse(Call<List<ChoixLigne>> call, Response<List<ChoixLigne>> response) {
-                            //Dismiss Dialog
-                            dialog.dismiss();
-                            if (response.isSuccessful()) {
 
-                                choixLigne = response.body();
-                                adapter = new ChoixLigneAdapter(MainActivity.this, choixLigne);
-                                listView.setAdapter(adapter);
-
-                            } else {
-                                dialog.setTitle(getString(R.string.string_getting_json_Error_noresponse));
-                                dialog.setMessage(getString(R.string.string_getting_json_error_noresponse_message));
-                                dialog.show();
-                                //dialog.dismiss();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<List<ChoixLigne>> call, Throwable t) {
-                            Log.wtf("Error !", t.getMessage().toString());
-                            dialog.dismiss();
-                        }
-                    });
                 } else {
                     //TODO
                 }
             }
         });
+    }
+
+    private void demarrerAffichage(){
+        Call<List<ChoixLigne>> call = api.getPassageFromStation(station);
+
+        call.enqueue(new Callback<List<ChoixLigne>>() {
+            @Override
+            public void onResponse(Call<List<ChoixLigne>> call, Response<List<ChoixLigne>> response) {
+                //Dismiss Dialog
+                dialog.dismiss();
+                if (response.isSuccessful()) {
+
+                    /**Traitement de la ligne*/
+                    choixLigne = response.body();
+                    if(ligne!=null)
+                    {
+                        for (int i = 0; i < choixLigne.size(); i++)
+                        {
+                            if (!choixLigne.get(i).getLigne().equals(ligne))
+                            {
+                                Log.wtf("Item removed", choixLigne.get(i).getPattern().getDesc());
+                                choixLigne.remove(i);
+                                i--;
+                            }
+                        }
+                    }
+                    /**Traitement de l'horraire*/
+                    if( time != -1){
+                        for (int i = 0; i < choixLigne.size(); i++)
+                        {
+                            if(!choixLigne.get(i).filterTimes(time))
+                            {
+                                choixLigne.remove(i);
+                                i--;
+                            }
+                        }
+                    }
+
+
+                    Log.wtf("Filter done", "all time after "+time+" for line "+ligne);
+
+                    /** Adaptation pour affichage */
+                    adapter = new ChoixLigneAdapter(MainActivity.this, choixLigne);
+                    listView.setAdapter(adapter);
+
+                } else {
+                    dialog.setTitle(getString(R.string.string_getting_json_Error_noresponse));
+                    dialog.setMessage(getString(R.string.string_getting_json_error_noresponse_message));
+                    dialog.show();
+                    //dialog.dismiss();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ChoixLigne>> call, Throwable t) {
+                Log.wtf("Error !", t.getMessage().toString());
+                dialog.dismiss();
+            }
+        });
+    }
+    private final void createNotification(String title, String desc){
+        final NotificationManager mNotification = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        final Intent launchNotifiactionIntent = new Intent(this, MainActivity.class);
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this,
+                1, launchNotifiactionIntent,
+                PendingIntent.FLAG_ONE_SHOT);
+
+        Notification.Builder builder = new Notification.Builder(this)
+                .setWhen(System.currentTimeMillis())
+                .setTicker("testNotification")
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle(title)
+                .setContentText(desc)
+                .setContentIntent(pendingIntent);
+
+        mNotification.notify(1, builder.build());
     }
 }

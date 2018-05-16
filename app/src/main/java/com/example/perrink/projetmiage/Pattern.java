@@ -26,6 +26,8 @@ public class Pattern {
         return id;
     }
 
+    public String getLigne() { return id.split(":")[1];}
+
     public void setId(String id) {
         this.id = id;
     }

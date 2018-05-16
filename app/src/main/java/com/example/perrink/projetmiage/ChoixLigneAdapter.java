@@ -1,6 +1,7 @@
 package com.example.perrink.projetmiage;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,12 +46,20 @@ public class ChoixLigneAdapter extends ArrayAdapter<ChoixLigne> {
         }
 
         ChoixLigne item = getItem(position);
-        Integer heure = item.getTimes().get(0).getScheduledArrival()/60/60;
-        Integer minute = (item.getTimes().get(0).getScheduledArrival()-heure*60*60)/60;
-
-        String tram = "Tram "+item.getPattern().getId().split(":")[1]+" direction "+item.getPattern().getShortDesc();
-
-        vh.textViewCode.setText("Prochain à "+heure+"h"+minute);
+        if(item == null)
+        {
+            Log.wtf("Error", "item in ChoixLigneAdapter is null!");
+        }
+        Integer heure = item.getTimes().get(0).getRealtimeArrival()/60/60;
+        Integer minute = (item.getTimes().get(0).getRealtimeArrival()-heure*60*60)/60;
+        if(minute<10)
+        {
+            vh.textViewCode.setText("Prochain à "+heure%24+"h0"+minute);
+        }else
+        {
+            vh.textViewCode.setText("Prochain à "+heure%24+"h"+minute);
+        }
+        String tram = "Tram " + item.getPattern().getId().split(":")[1] + " direction " + item.getPattern().getShortDesc();
         vh.textViewName.setText(tram);
         return vh.rootView;
     }
