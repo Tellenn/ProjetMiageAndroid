@@ -6,7 +6,9 @@ package com.example.perrink.projetmiage;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class ArretLigne {
+import java.io.Serializable;
+
+public class ArretLigne implements Serializable {
 
     @SerializedName("code")
     @Expose

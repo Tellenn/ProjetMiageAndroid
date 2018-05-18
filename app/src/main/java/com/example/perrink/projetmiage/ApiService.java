@@ -14,8 +14,8 @@ public interface ApiService {
     @GET("routers/default/index/routes/SEM:{shortName}/clusters/")
     Call<List<ArretLigne>> getStopsFrom(@Path("shortName") String shortName);
 
-    @GET("routers/default/index/clusters/SEM:{codeStation}/stoptimes")
-    Call<List<ChoixLigne>> getPassageFromStation(@Path("codeStation") String codeStation);
+    @GET("routers/default/index/clusters/{codeStation}/stoptimes")
+    Call<List<Horraire>> getPassageFromStation(@Path("codeStation") String codeStation);
 
     @GET("routers/default/index/routes")
     Call<List<Ligne>> getLignes();

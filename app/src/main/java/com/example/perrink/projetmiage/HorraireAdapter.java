@@ -15,14 +15,14 @@ import java.util.List;
  * Created by perrink on 02/05/18.
  */
 
-public class ChoixLigneAdapter extends ArrayAdapter<ChoixLigne> {
+public class HorraireAdapter extends ArrayAdapter<Horraire> {
 
-    List<ChoixLigne> ArretLignes;
+    List<Horraire> ArretLignes;
     Context context;
     private LayoutInflater mInflater;
 
     // Constructors
-    public ChoixLigneAdapter(Context context, List<ChoixLigne> objects) {
+    public HorraireAdapter(Context context, List<Horraire> objects) {
         super(context, 0, objects);
         this.context = context;
         this.mInflater = LayoutInflater.from(context);
@@ -30,7 +30,7 @@ public class ChoixLigneAdapter extends ArrayAdapter<ChoixLigne> {
     }
 
     @Override
-    public ChoixLigne getItem(int position) {
+    public Horraire getItem(int position) {
         return ArretLignes.get(position);
     }
 
@@ -45,10 +45,10 @@ public class ChoixLigneAdapter extends ArrayAdapter<ChoixLigne> {
             vh = (ViewHolder) convertView.getTag();
         }
 
-        ChoixLigne item = getItem(position);
+        Horraire item = getItem(position);
         if(item == null)
         {
-            Log.wtf("Error", "item in ChoixLigneAdapter is null!");
+            Log.wtf("Error", "item in HorraireAdapter is null!");
         }
         Integer heure = item.getTimes().get(0).getRealtimeArrival()/60/60;
         Integer minute = (item.getTimes().get(0).getRealtimeArrival()-heure*60*60)/60;

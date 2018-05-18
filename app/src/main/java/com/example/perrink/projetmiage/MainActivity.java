@@ -38,9 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private int time = 71280; //TODO A SUPPRIMER -1 is null in our case
 
     private List<ArretLigne> listArretLigne;
-    private List<ChoixLigne> choixLigne;
+    private List<Horraire> horraire;
     private List<Ligne> listeLigne;
-    private ChoixLigneAdapter adapter;
+    private HorraireAdapter adapter;
     private LigneAdapter ligneAdapter;
     private ApiService api = RetroClient.getApiService();
 
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         /**
          * Getting List and Setting List Adapter
          */
-        listView = (ListView) findViewById(R.id.listView);
+        listView = (ListView) findViewById(R.id.listLigne2);
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -170,70 +170,43 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void demarrerAffichage(){
-        Call<List<ChoixLigne>> call = api.getPassageFromStation(station);
-
-        call.enqueue(new Callback<List<ChoixLigne>>() {
-            @Override
-            public void onResponse(Call<List<ChoixLigne>> call, Response<List<ChoixLigne>> response) {
-                //Dismiss Dialog
-                dialog.dismiss();
-                if (response.isSuccessful()) {
-
-                    /**Traitement de la ligne*/
-                    choixLigne = response.body();
-                    if(ligne!=null)
-                    {
-                        for (int i = 0; i < choixLigne.size(); i++)
-                        {
-                            if (!choixLigne.get(i).getLigne().equals(ligne))
-                            {
-                                Log.wtf("Item removed", choixLigne.get(i).getPattern().getDesc());
-                                choixLigne.remove(i);
-                                i--;
-                            }
-                        }
-                    }
-                    /**Traitement de l'horraire*/
-                    if( time != -1){
-                        for (int i = 0; i < choixLigne.size(); i++)
-                        {
-                            if(!choixLigne.get(i).filterTimes(time))
-                            {
-                                choixLigne.remove(i);
-                                i--;
-                            }
-                        }
-                    }
-
-
-                    Log.wtf("Filter done", "all time after "+time+" for line "+ligne);
-
-                    /** Adaptation pour affichage */
-                    adapter = new ChoixLigneAdapter(MainActivity.this, choixLigne);
-                    listView.setAdapter(adapter);
-
-                } else {
-                    dialog.setTitle(getString(R.string.string_getting_json_Error_noresponse));
-                    dialog.setMessage(getString(R.string.string_getting_json_error_noresponse_message));
-                    dialog.show();
-                    //dialog.dismiss();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ChoixLigne>> call, Throwable t) {
-                Log.wtf("Error !", t.getMessage().toString());
-                dialog.dismiss();
-            }
-        });
-    }
-
 
     private void afficherLigne(List<Ligne> lignes, final ListView listView)
     {
         /** Adaptation pour affichage */
-        ligneAdapter = new LigneAdapter(MainActivity.this, lignes);
+
+        ArrayList<String> group = new ArrayList<>();
+        group.add("Tram");
+        group.add("Chrono");
+        group.add("Bus");
+
+        ArrayList<Object> childs = new ArrayList<>();
+
+        ArrayList<Ligne> tram = new ArrayList<>();
+        ArrayList<Ligne> chrono = new ArrayList<>();
+        ArrayList<Ligne> bus = new ArrayList<>();
+
+        for( int i=0;i<lignes.size();i++)
+        {
+            Ligne ligneTemp = lignes.get(i);
+            if(ligneTemp.getType().equals("Tram"))
+            {
+                tram.add(ligneTemp);
+            } else if (ligneTemp.getType().equals("Chrono"))
+            {
+                chrono.add(ligneTemp);
+            }else if (ligneTemp.getType().equals("Bus"))
+            {
+                bus.add(ligneTemp);
+            }
+        }
+
+        childs.add(tram);
+        childs.add(chrono);
+        childs.add(bus);
+
+
+        ligneAdapter = new LigneAdapter(this,lignes);
         listView.setAdapter(ligneAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
