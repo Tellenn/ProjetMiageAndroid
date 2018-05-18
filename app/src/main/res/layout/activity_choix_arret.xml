@@ -17,9 +17,19 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true">
 
-        <ListView
+        <TextView
+            android:id="@+id/textView3"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/listeArret" />
+            android:layout_height="47dp"
+            android:text="Veuillez selectionner un arrêt"
+            android:textAppearance="@android:style/TextAppearance.Material.Large"
+            android:textColor="@color/colorPrimaryDark" />
+
+        <ListView
+            android:id="@+id/listeArret"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+        </ListView>
     </LinearLayout>
 </RelativeLayout>

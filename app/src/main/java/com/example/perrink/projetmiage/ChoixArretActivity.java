@@ -9,7 +9,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,11 +27,6 @@ public class ChoixArretActivity extends AppCompatActivity {
     private ProgressDialog dialog;
     private ApiService api = RetroClient.getApiService();
 
-
-
-
-    private String station = null;// TODO A supprimer, doit être a null et recupéré ensuite
-    private int time = -1; //TODO A SUPPRIMER -1 is null in our case
 
     private boolean isNetworkConnected() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -85,9 +82,6 @@ public class ChoixArretActivity extends AppCompatActivity {
 
 
         /*
-
-
-
                     Log.wtf("Filter done", "all time after "+time+" for line "+ligne);
 
                     // Adaptation pour affichage
@@ -124,11 +118,12 @@ public class ChoixArretActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Horraire>> call, Throwable t) {
+            public void onFailure(Call<List<Horaire>> call, Throwable t) {
                 Log.wtf("Error !", t.getMessage().toString());
                 dialog.dismiss();
             }
         });
         */
     }
+
 }

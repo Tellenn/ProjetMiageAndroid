@@ -1,8 +1,5 @@
 package com.example.perrink.projetmiage;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -12,8 +9,10 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -38,10 +37,11 @@ public class MainActivity extends AppCompatActivity {
     private int time = 71280; //TODO A SUPPRIMER -1 is null in our case
 
     private List<ArretLigne> listArretLigne;
-    private List<Horraire> horraire;
+    private List<Horaire> horaire;
     private List<Ligne> listeLigne;
-    private HorraireAdapter adapter;
+    private HoraireAdapter adapter;
     private LigneAdapter ligneAdapter;
+    private LigneAdapterExpand ligneAdapterExpand;
     private ApiService api = RetroClient.getApiService();
 
     private boolean isNetworkConnected() {
@@ -53,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
+        //setContentView(R.layout.activity_main);
+        setContentView(R.layout.choix_ligne_expand);
         /**
          * Array List for Binding Data from JSON to this List
          */
@@ -66,108 +66,70 @@ public class MainActivity extends AppCompatActivity {
          */
         listView = (ListView) findViewById(R.id.listLigne2);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                createNotification("Plop", "Ploup");
-            }
-        });
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        assert fab != null;
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(@NonNull final View view) {
-
-                if (isNetworkConnected()) {
-                    /**
-                     * Progress Dialog for User Interaction
-                     */
-                    dialog = new ProgressDialog(MainActivity.this);
-                    dialog.setTitle(getString(R.string.string_getting_json_title));
-                    dialog.setMessage(getString(R.string.string_getting_json_message));
-                    dialog.show();
-
-                    //Creating an object of our api interface
 
 
-                    /**
-                     * Calling JSON
-                     */
+        if (isNetworkConnected()) {
+            /**
+             * Progress Dialog for User Interaction
+             */
+            dialog = new ProgressDialog(MainActivity.this);
+            dialog.setTitle(getString(R.string.string_getting_json_title));
+            dialog.setMessage(getString(R.string.string_getting_json_message));
+            dialog.show();
 
-                    Call<List<Ligne>> callLigne = api.getLignes();
-                    /*Call<List<ArretLigne>> call2 = api.getStopsFrom("A");
-                    Log.wtf("URL Called", call2.request().url() + " ");
+            //Creating an object of our api interface
 
-                    /**
-                     * Enqueue Callback will be call when get response...
-                     */
-                    callLigne.enqueue(new Callback<List<Ligne>>() {
-                        @Override
-                        public void onResponse(Call<List<Ligne>> call, Response<List<Ligne>> response) {
-                            if (response.isSuccessful())
+
+            /**
+             * Calling JSON
+             */
+
+            Call<List<Ligne>> callLigne = api.getLignes();
+            /*Call<List<ArretLigne>> call2 = api.getStopsFrom("A");
+            Log.wtf("URL Called", call2.request().url() + " ");
+
+            /**
+             * Enqueue Callback will be call when get response...
+             */
+            callLigne.enqueue(new Callback<List<Ligne>>() {
+                @Override
+                public void onResponse(Call<List<Ligne>> call, Response<List<Ligne>> response) {
+                    if (response.isSuccessful())
+                    {
+                        listeLigne = response.body();
+                        Iterator<Ligne> iter = listeLigne.iterator();
+                        Ligne l;
+                        while(iter.hasNext())
+                        {
+                            l = iter.next();
+
+                            if(!l.isTag())
                             {
-                                listeLigne = response.body();
-                                Iterator<Ligne> iter = listeLigne.iterator();
-                                Ligne l;
-                                while(iter.hasNext())
-                                {
-                                    l = iter.next();
-
-                                    if(!l.isTag())
-                                    {
-                                        iter.remove();
-                                    }
-                                }
-                                dialog.dismiss();
-                                afficherLigne(listeLigne,listView);
-                                //TODO afficher la liste de ligne
-
-                            } else {
-                                dialog.setTitle(getString(R.string.string_getting_json_Error_noresponse));
-                                dialog.setMessage(getString(R.string.string_getting_json_error_noresponse_message));
-                                dialog.show();
-                                //dialog.dismiss();
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<List<Ligne>> call, Throwable t) {
-                            Log.wtf("Error !", "Echec de la Callback");
-                            dialog.dismiss();
-                        }
-                    });
-                    /*call2.enqueue(new Callback<List<ArretLigne>>() {
-                        @Override
-                        public void onResponse(Call<List<ArretLigne>> call, Response<List<ArretLigne>> response) {
-
-                            if (response.isSuccessful()) {
-                                //On a récuperer les arrets existant de la ligne donnée en argument
-                                listArretLigne = response.body();
-                                // On démare la partie 2
-                                demarrerAffichage();
-
-                            } else {
-                                dialog.setTitle(getString(R.string.string_getting_json_Error_noresponse));
-                                dialog.setMessage(getString(R.string.string_getting_json_error_noresponse_message));
-                                dialog.show();
-                                //dialog.dismiss();
+                                iter.remove();
                             }
                         }
+                        dialog.dismiss();
+                        afficherLigne(listeLigne,listView);
+                        //TODO afficher la liste de ligne
 
-                        @Override
-                        public void onFailure(Call<List<ArretLigne>> call, Throwable t) {
-                            Log.wtf("Error !", "Echec de la Callback");
-                            dialog.dismiss();
-                        }
-                    });*/
+                    } else {
+                        dialog.setTitle(getString(R.string.string_getting_json_Error_noresponse));
+                        dialog.setMessage(getString(R.string.string_getting_json_error_noresponse_message));
+                        dialog.show();
+                        //dialog.dismiss();
+                    }
 
-                } else {
-                    //TODO
                 }
-            }
-        });
+
+                @Override
+                public void onFailure(Call<List<Ligne>> call, Throwable t) {
+                    Log.wtf("Error !", "Echec de la Callback");
+                    dialog.dismiss();
+                }
+            });
+        } else {
+            //TODO
+        }
     }
 
 
@@ -178,9 +140,9 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> group = new ArrayList<>();
         group.add("Tram");
         group.add("Chrono");
-        group.add("Bus");
+        group.add("Flexo");
 
-        ArrayList<Object> childs = new ArrayList<>();
+        ArrayList<ArrayList<Ligne>> childs = new ArrayList<>();
 
         ArrayList<Ligne> tram = new ArrayList<>();
         ArrayList<Ligne> chrono = new ArrayList<>();
@@ -189,58 +151,30 @@ public class MainActivity extends AppCompatActivity {
         for( int i=0;i<lignes.size();i++)
         {
             Ligne ligneTemp = lignes.get(i);
-            if(ligneTemp.getType().equals("Tram"))
+            if(ligneTemp.getType().equals("TRAM"))
             {
                 tram.add(ligneTemp);
-            } else if (ligneTemp.getType().equals("Chrono"))
+            } else if (ligneTemp.getType().equals("CHRONO"))
             {
                 chrono.add(ligneTemp);
-            }else if (ligneTemp.getType().equals("Bus"))
+            }else if (ligneTemp.getType().equals("FLEXO"))
             {
                 bus.add(ligneTemp);
             }
         }
+
+
 
         childs.add(tram);
         childs.add(chrono);
         childs.add(bus);
 
 
-        ligneAdapter = new LigneAdapter(this,lignes);
-        listView.setAdapter(ligneAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapter, View v, int position, long id) {
-                Intent i = new Intent(getBaseContext(), ChoixArretActivity.class);
-                Bundle b = new Bundle();
-
-
-                Ligne l;
-                l =(Ligne) adapter.getItemAtPosition(position);
-
-                b.putSerializable("ligne", l);
-                i.putExtras(b);
-                startActivityForResult(i, 2);
-            }
-        });
-    }
-
-    private final void createNotification(String title, String desc){
-        final NotificationManager mNotification = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-        final Intent launchNotifiactionIntent = new Intent(this, MainActivity.class);
-        final PendingIntent pendingIntent = PendingIntent.getActivity(this,
-                1, launchNotifiactionIntent,
-                PendingIntent.FLAG_ONE_SHOT);
-
-        Notification.Builder builder = new Notification.Builder(this)
-                .setWhen(System.currentTimeMillis())
-                .setTicker("testNotification")
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle(title)
-                .setContentText(desc)
-                .setContentIntent(pendingIntent);
-
-        mNotification.notify(1, builder.build());
+        ExpandableListView expandbleLis = (ExpandableListView) findViewById(R.id.expand);
+        final LigneAdapterExpand mNewAdapter = new LigneAdapterExpand(this,group, childs);
+        mNewAdapter.setInflater(
+                (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE),
+                this);
+        expandbleLis.setAdapter(mNewAdapter);
     }
 }

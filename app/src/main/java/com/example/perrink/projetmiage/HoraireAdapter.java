@@ -15,22 +15,24 @@ import java.util.List;
  * Created by perrink on 02/05/18.
  */
 
-public class HorraireAdapter extends ArrayAdapter<Horraire> {
+public class HoraireAdapter extends ArrayAdapter<Horaire> {
 
-    List<Horraire> ArretLignes;
+    List<Horaire> ArretLignes;
     Context context;
     private LayoutInflater mInflater;
+    Ligne ligne;
 
     // Constructors
-    public HorraireAdapter(Context context, List<Horraire> objects) {
+    public HoraireAdapter(Context context, List<Horaire> objects, Ligne ligne) {
         super(context, 0, objects);
         this.context = context;
         this.mInflater = LayoutInflater.from(context);
         ArretLignes = objects;
+        this.ligne=ligne;
     }
 
     @Override
-    public Horraire getItem(int position) {
+    public Horaire getItem(int position) {
         return ArretLignes.get(position);
     }
 
@@ -45,22 +47,24 @@ public class HorraireAdapter extends ArrayAdapter<Horraire> {
             vh = (ViewHolder) convertView.getTag();
         }
 
-        Horraire item = getItem(position);
+        Horaire item = getItem(position);
         if(item == null)
         {
-            Log.wtf("Error", "item in HorraireAdapter is null!");
+            Log.wtf("Error", "item in HoraireAdapter is null!");
+            vh.textViewName.setText("Pas de passage prévu aujourd'hui");
+        }else {
+            Integer heure = item.getTimes().get(0).getRealtimeArrival() / 60 / 60;
+            Integer minute = (item.getTimes().get(0).getRealtimeArrival() - heure * 60 * 60) / 60;
+            if (minute < 10) {
+                vh.textViewCode.setText("Prochain à " + heure % 24 + "h0" + minute);
+            } else {
+                vh.textViewCode.setText("Prochain à " + heure % 24 + "h" + minute);
+            }
+
+            String name = ligne.getMode() + " " + item.getPattern().getId().split(":")[1] + " direction " + item.getPattern().getShortDesc();
+            vh.textViewName.setText(name);
         }
-        Integer heure = item.getTimes().get(0).getRealtimeArrival()/60/60;
-        Integer minute = (item.getTimes().get(0).getRealtimeArrival()-heure*60*60)/60;
-        if(minute<10)
-        {
-            vh.textViewCode.setText("Prochain à "+heure%24+"h0"+minute);
-        }else
-        {
-            vh.textViewCode.setText("Prochain à "+heure%24+"h"+minute);
-        }
-        String tram = "Tram " + item.getPattern().getId().split(":")[1] + " direction " + item.getPattern().getShortDesc();
-        vh.textViewName.setText(tram);
+
         return vh.rootView;
     }
 

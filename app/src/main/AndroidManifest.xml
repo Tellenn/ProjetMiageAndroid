@@ -20,7 +20,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".ChoixArretActivity" />
-        <activity android:name=".HorairesArretActivity"></activity>
+        <activity android:name="com.example.perrink.projetmiage.HorairesArretActivity"></activity>
+        <receiver
+            android:process=":remote"
+            android:name="com.example.perrink.projetmiage.NotifService"
+            android:exported="false" />
+
     </application>
 
 </manifest>

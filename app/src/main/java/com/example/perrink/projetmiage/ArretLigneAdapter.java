@@ -48,7 +48,7 @@ public class ArretLigneAdapter extends ArrayAdapter<ArretLigne> {
 
         ArretLigne item = getItem(position);
 
-        vh.textViewCode.setText(item.getCode());
+        vh.textViewCode.setText(item.getCity());
         vh.textViewName.setText(item.getName());
         return vh.rootView;
     }
